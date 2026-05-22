@@ -20,6 +20,7 @@ services:
       dockerfile: apps/automation-engine/api/Dockerfile
     ports:
       - "8001:8001"
+      - "6080:6080"
     volumes:
       - ./shared:/app/shared
       - ./apps/automation-engine/outputs:/app/apps/automation-engine/outputs

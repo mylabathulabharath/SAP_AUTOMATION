@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 
-# Install system dependencies for Playwright
+# Install system dependencies for Playwright, X11, VNC, and noVNC
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
@@ -18,6 +18,12 @@ RUN apt-get update && apt-get install -y \
     libxrandr2 \
     libgbm1 \
     libasound2 \
+    # GUI and VNC dependencies
+    xvfb \
+    x11vnc \
+    fluxbox \
+    novnc \
+    websockify \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -32,8 +38,14 @@ RUN playwright install chromium
 COPY apps/automation-engine /app/apps/automation-engine
 COPY apps/shared /app/apps/shared
 
+# Copy startup script
+COPY apps/automation-engine/api/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 ENV PYTHONPATH=/app
+ENV DISPLAY=:99
 
 EXPOSE 8001
+EXPOSE 6080
 
-CMD ["python", "apps/automation-engine/api/main.py"]
+ENTRYPOINT ["/entrypoint.sh"]
