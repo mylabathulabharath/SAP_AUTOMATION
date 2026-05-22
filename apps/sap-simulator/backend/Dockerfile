@@ -3,8 +3,6 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Copy dependencies
-COPY .venv /app/.venv_temp
-
 # Alternatively, copy requirements and install
 RUN pip install --no-cache-dir fastapi uvicorn pydantic faker pandas openpyxl
 
