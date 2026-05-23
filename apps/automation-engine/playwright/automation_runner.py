@@ -59,12 +59,21 @@ def run_automation(excel_path):
     update_status("running", "Starting Browser...", processed_count, total_pos, success_count, failure_count, start_time)
     
     with sync_playwright() as p:
-        print("[INFO] Launching Chromium browser...")
-        browser = p.chromium.launch(headless=False, args=["--no-sandbox", "--disable-setuid-sandbox"])
-        
-        # Create a new context and set viewport
-        context = browser.new_context(viewport={"width": 1280, "height": 850})
-        page = context.new_page()
+        cdp_url = os.environ.get("CDP_URL")
+        if cdp_url:
+            print(f"[INFO] Connecting to remote browser over CDP: {cdp_url}")
+            browser = p.chromium.connect_over_cdp(cdp_url)
+            if browser.contexts:
+                context = browser.contexts[0]
+                page = context.new_page() if not context.pages else context.pages[0]
+            else:
+                context = browser.new_context()
+                page = context.new_page()
+        else:
+            print("[INFO] Launching Chromium browser...")
+            browser = p.chromium.launch(headless=False, args=["--no-sandbox", "--disable-setuid-sandbox"])
+            context = browser.new_context(viewport={"width": 1280, "height": 850})
+            page = context.new_page()
         
         # Base URL of SAP Simulator
         base_url = "http://localhost:3000"

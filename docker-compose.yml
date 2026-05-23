@@ -20,13 +20,14 @@ services:
       dockerfile: apps/automation-engine/api/Dockerfile
     ports:
       - "8001:8001"
-      - "6080:6080"
     volumes:
       - ./shared:/app/shared
       - ./apps/automation-engine/outputs:/app/apps/automation-engine/outputs
       - ./apps/automation-engine/uploads:/app/apps/automation-engine/uploads
     environment:
       - PYTHONUNBUFFERED=1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - sap-backend
 
