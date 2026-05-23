@@ -12,7 +12,7 @@ def run_automation():
     try:
         with sync_playwright() as p:
             # Connect to existing Chrome debugging session
-            browser = p.chromium.connect_over_cdp(cdp_url)
+            browser = p.chromium.connect_over_cdp(cdp_url, no_defaults=True)
             
             # Retrieve or create active page
             if browser.contexts:
