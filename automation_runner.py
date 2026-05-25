@@ -291,7 +291,12 @@ def js_click_exact_material_option(page, material_number, item_number):
     script = r"""args => {
         const material = String(args.material);
         const item = String(args.item);
-        const fragments = [`[ ${item} ]`, `[${item}]`, `[  ${item}  ]`];
+        const unpadded = item.replace(/^0+/, '') || '0';
+        const padded = item.padStart(5, '0');
+        const fragments = [
+            `[ ${unpadded} ]`, `[${unpadded}]`, `[  ${unpadded}  ]`,
+            `[ ${padded} ]`, `[${padded}]`, `[  ${padded}  ]`
+        ];
         const normalize = s => (s || '').replace(/\s+/g, ' ').trim();
         const visible = el => {
             if (!el || !el.isConnected) return false;
@@ -353,8 +358,13 @@ def js_select_material_from_combobox(page, material_number, item_number):
     """Open the visible SAP combo input and click the matching list option."""
     script = r"""args => {
         const material = String(args.material);
-        const item = String(args.item).trim().replace(/^0+/, '') || '0';
-        const fragments = [`[ ${item} ]`, `[${item}]`, `[  ${item}  ]`];
+        const item = String(args.item);
+        const unpadded = item.replace(/^0+/, '') || '0';
+        const padded = item.padStart(5, '0');
+        const fragments = [
+            `[ ${unpadded} ]`, `[${unpadded}]`, `[  ${unpadded}  ]`,
+            `[ ${padded} ]`, `[${padded}]`, `[  ${padded}  ]`
+        ];
         const normalize = s => (s || '').replace(/\s+/g, ' ').trim();
 
         const inputs = Array.from(document.querySelectorAll('input.lsField__input, input[aria-roledescription]'));
@@ -421,7 +431,12 @@ def selected_item_matches(page, material_number, item_number):
     script = r"""args => {
         const material = String(args.material);
         const item = String(args.item);
-        const fragments = [`[ ${item} ]`, `[${item}]`, `[  ${item}  ]`];
+        const unpadded = item.replace(/^0+/, '') || '0';
+        const padded = item.padStart(5, '0');
+        const fragments = [
+            `[ ${unpadded} ]`, `[${unpadded}]`, `[  ${unpadded}  ]`,
+            `[ ${padded} ]`, `[${padded}]`, `[  ${padded}  ]`
+        ];
         const normalize = s => (s || '').replace(/\s+/g, ' ').trim();
         const visible = el => {
             if (!el || !el.isConnected) return false;

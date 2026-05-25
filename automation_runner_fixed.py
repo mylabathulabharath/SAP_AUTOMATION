@@ -73,30 +73,39 @@ def normalize_item_number(item_number):
     return str(item_number).strip().lstrip("0") or "0"
 
 
+def pad_item_number(item_number):
+    return str(item_number).strip().zfill(5)
+
+
 def target_item_fragments(item_number):
-    item = normalize_item_number(item_number)
-    return [f"[ {item} ]", f"[{item}]", f"[  {item}  ]"]
+    item_unpadded = normalize_item_number(item_number)
+    item_padded = pad_item_number(item_number)
+    return [
+        f"[ {item_unpadded} ]", f"[{item_unpadded}]", f"[  {item_unpadded}  ]",
+        f"[ {item_padded} ]", f"[{item_padded}]", f"[  {item_padded}  ]"
+    ]
 
 
 def material_selectors(material_number, item_number=TARGET_ITEM_NUMBER):
     """Return exact SAP listbox option selectors for the target line item/material.
 
     Important: these selectors intentionally target only listbox/options.
-    The previous broad selector could click hidden text or the wrong visible node,
-    which made the log say 1480461 was clicked while the selected Item field
-    stayed on line 10 / 1481799.
     """
-    item = normalize_item_number(item_number)
-    return [
-        f"css=.lsListbox__values .lsListbox__value[data-itemvalue2*='[ {item} ]'][data-itemvalue2*='{material_number}']",
-        f"css=[role='option'][data-itemvalue2*='[ {item} ]'][data-itemvalue2*='{material_number}']",
-        f"xpath=//*[@role='option' and contains(@data-itemvalue2, '[ {item} ]') and contains(@data-itemvalue2, '{material_number}')]",
-        f"xpath=//*[contains(@class, 'lsListbox__value') and contains(@data-itemvalue2, '[ {item} ]') and contains(@data-itemvalue2, '{material_number}')]",
-        f"xpath=//*[@role='option' and contains(normalize-space(.), '[ {item} ]') and contains(normalize-space(.), '{material_number}')]",
-        f"xpath=//*[contains(@class, 'lsListbox__value') and contains(normalize-space(.), '[ {item} ]') and contains(normalize-space(.), '{material_number}')]",
-        f"xpath=//*[@role='option' and contains(normalize-space(.), '[{item}]') and contains(normalize-space(.), '{material_number}')]",
-        f"xpath=//*[contains(@class, 'lsListbox__value') and contains(normalize-space(.), '[{item}]') and contains(normalize-space(.), '{material_number}')]",
-    ]
+    item_unpadded = normalize_item_number(item_number)
+    item_padded = pad_item_number(item_number)
+    selectors = []
+    for item in [item_unpadded, item_padded]:
+        selectors.extend([
+            f"css=.lsListbox__values .lsListbox__value[data-itemvalue2*='[ {item} ]'][data-itemvalue2*='{material_number}']",
+            f"css=[role='option'][data-itemvalue2*='[ {item} ]'][data-itemvalue2*='{material_number}']",
+            f"xpath=//*[@role='option' and contains(@data-itemvalue2, '[ {item} ]') and contains(@data-itemvalue2, '{material_number}')]",
+            f"xpath=//*[contains(@class, 'lsListbox__value') and contains(@data-itemvalue2, '[ {item} ]') and contains(@data-itemvalue2, '{material_number}')]",
+            f"xpath=//*[@role='option' and contains(normalize-space(.), '[ {item} ]') and contains(normalize-space(.), '{material_number}')]",
+            f"xpath=//*[contains(@class, 'lsListbox__value') and contains(normalize-space(.), '[ {item} ]') and contains(normalize-space(.), '{material_number}')]",
+            f"xpath=//*[@role='option' and contains(normalize-space(.), '[{item}]') and contains(normalize-space(.), '{material_number}')]",
+            f"xpath=//*[contains(@class, 'lsListbox__value') and contains(normalize-space(.), '[{item}]') and contains(normalize-space(.), '{material_number}')]",
+        ])
+    return selectors
 
 
 def current_item_field_selectors():
@@ -257,7 +266,12 @@ def js_click_exact_material_option(page, material_number, item_number):
     script = r"""args => {
         const material = String(args.material);
         const item = String(args.item);
-        const fragments = [`[ ${item} ]`, `[${item}]`, `[  ${item}  ]`];
+        const unpadded = item.replace(/^0+/, '') || '0';
+        const padded = item.padStart(5, '0');
+        const fragments = [
+            `[ ${unpadded} ]`, `[${unpadded}]`, `[  ${unpadded}  ]`,
+            `[ ${padded} ]`, `[${padded}]`, `[  ${padded}  ]`
+        ];
         const normalize = s => (s || '').replace(/\s+/g, ' ').trim();
         const visible = el => {
             if (!el || !el.isConnected) return false;
@@ -324,7 +338,12 @@ def selected_item_matches(page, material_number, item_number):
     script = r"""args => {
         const material = String(args.material);
         const item = String(args.item);
-        const fragments = [`[ ${item} ]`, `[${item}]`, `[  ${item}  ]`];
+        const unpadded = item.replace(/^0+/, '') || '0';
+        const padded = item.padStart(5, '0');
+        const fragments = [
+            `[ ${unpadded} ]`, `[${unpadded}]`, `[  ${unpadded}  ]`,
+            `[ ${padded} ]`, `[${padded}]`, `[  ${padded}  ]`
+        ];
         const normalize = s => (s || '').replace(/\s+/g, ' ').trim();
         const visible = el => {
             if (!el || !el.isConnected) return false;
@@ -380,7 +399,12 @@ def js_select_material_by_aria_controls(page, material_number, item_number):
     script = r"""args => {
         const material = String(args.material);
         const item = String(args.item);
-        const fragments = [`[ ${item} ]`, `[${item}]`, `[  ${item}  ]`];
+        const unpadded = item.replace(/^0+/, '') || '0';
+        const padded = item.padStart(5, '0');
+        const fragments = [
+            `[ ${unpadded} ]`, `[${unpadded}]`, `[  ${unpadded}  ]`,
+            `[ ${padded} ]`, `[${padded}]`, `[  ${padded}  ]`
+        ];
         const normalize = s => (s || '').replace(/\s+/g, ' ').trim();
         const visible = el => {
             if (!el || !el.isConnected) return false;
